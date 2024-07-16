@@ -1,0 +1,19 @@
+{
+    "name": "recyclebin/anonymous-members",
+    "description": "Anonymous Members - WordPress plugin",
+    "type": "wordpress-plugin",
+	"version": "1.0.0",
+	"authors": [
+        {
+            "name": "ckchaudhary",
+            "email": "ckchaudhary@hotmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "RecycleBin\\AnonymousMembers\\": "src/"
+        },
+		"files": []
+    },
+    "require": {}
+}

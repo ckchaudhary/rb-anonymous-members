@@ -1,0 +1,3 @@
+jQuery( ($) => {
+	// ajax prefilter
+});
