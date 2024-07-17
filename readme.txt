@@ -1,7 +1,7 @@
-=== Anonymous Members ===
+=== RB Anonymous Members ===
 Contributors: ckchaudhary
 Donate link: https://www.recycleb.in/u/chandan/
-Tags: buddypress, bbpress, ultimate members, customize profiles, customize groups
+Tags: buddypress, buddyboss, anonymous, member, group
 Requires PHP: 5.6
 Requires at least: 5.8
 Tested up to: 6.5
@@ -13,7 +13,7 @@ Anonymous members for BuddyPress and BuddyBoss
 
 == Description ==
 
-Allow your BuddyBoss & BuddyPress website's members join groups anonymously.
+Allow your BuddyBoss & BuddyPress website's members to join groups anonymously.
 
 == Installation ==
 

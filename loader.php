@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Anonymous Members
- * Plugin URI: https://blogs.recycleb.in/?p=47
+ * Plugin Name: RB Anonymous Members
+ * Plugin URI: https://blogs.recycleb.in/2024/07/buddypress-buyddyboss-anonymous-members/
  * Description: Allow your BuddyBoss & BuddyPress website's members to join groups anonymously.
  * Version: 1.0.0
  * Author: ckchaudhary
