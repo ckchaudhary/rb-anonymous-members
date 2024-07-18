@@ -9,6 +9,7 @@
 namespace RecycleBin\AnonymousMembers\Integrations;
 
 use RecycleBin\AnonymousMembers\SecretIdentity;
+use stdClass;
 
 defined( 'ABSPATH' ) ? '' : exit();
 
@@ -19,28 +20,39 @@ defined( 'ABSPATH' ) ? '' : exit();
  * @author ckchaudhary
  */
 class BuddyPressGroups extends Integration {
+	//phpcs:ignore
+	#region properties
 
 	/**
 	 * Name of the query parameter which indicates that user wants to join anonymously.
 	 *
 	 * @var string
 	 */
-	private $query_param = 'nuqneH';
+	protected $query_param = 'nuqneH';
 
 	/**
 	 * Key for member meta which stores ids of all groups the given member has joined anonymously.
 	 *
 	 * @var string
 	 */
-	private $meta_key_anonymous_groups = '_bp_groups_joined_anonymously';
+	protected $meta_key_anonymous_groups = '_bp_groups_joined_anonymously';
 
 	/**
 	 * Key for group meta which stores ids of all members who have joined anonymously.
 	 *
 	 * @var string
 	 */
-	private $meta_key_anonymous_members = '_anonymous_members';
+	protected $meta_key_anonymous_members = '_anonymous_members';
 
+	/**
+	 * Undocumented variable
+	 *
+	 * @var boolean
+	 */
+	protected $dealing_with_contained_elmenets = false;
+
+	//phpcs:ignore
+	#endregion
 
 	/**
 	 * Initialize the object.
@@ -84,13 +96,39 @@ class BuddyPressGroups extends Integration {
 		// Prevent redirecting activity/xxx to members/xyz/activity/xxx.
 		\add_filter( 'bp_activity_permalink_redirect_url', array( $this, 'prevent_activity_permalink_redirect' ), 90, 2 );
 
-		// \BP_Groups_Member::get_group_member_ids( 46 ) returns anonymous members as well, fix that. - Can't fix it.
-		// @todo: replace member's avatar and name in post-udpate/add-comment form.
+		// in the post actiivty form, change "what's new real_name" to "what's new alias".
+		\add_filter( 'bp_core_get_js_strings', array( $this, 'bp_core_get_js_strings' ), 90 );
+
+		// \BP_Groups_Member::get_group_member_ids( $group_id ) returns anonymous members as well, fix that. - Can't fix it.
 		// @todo: filter notifications
-		// @todo: edit group name & description > checkbox 'group-notify-members' : check what that does
+		//\add_filter( 'bp_get_the_notification_description', array( $this, 'filter_notification_description' ), 90, 2 );
+		\add_filter( 'bp_activity_single_update_reply_notification', array( $this, 'filter_update_reply_notification_description' ), 90, 5 );
+		\add_filter( 'bp_activity_multiple_update_reply_notification', array( $this, 'filter_update_reply_notification_description' ), 90, 5 );
+
+		\add_filter( 'bp_activity_single_comment_reply_notification', array( $this, 'filter_update_comment_notification_description' ), 90, 5 );
+		\add_filter( 'bp_activity_multiple_comment_reply_notification', array( $this, 'filter_update_comment_notification_description' ), 90, 5 );
 		// @todo: anonymous members shouldn't be able to send invitations
 		// @todo: hide member details in all sorts of emails - check calls of bp_send_email
+
+		/*
+		Single group template starts
+
+			If the loggedin user is an anonymous member
+				- Filter all calls to loggedin_user_avatar, url, name etc and show alias
+				These may be useful in unforseen cases.
+
+		Single group template ends
+		*/
+		\add_action( 'bp_before_activity_post_form', array( $this, 'maybe_hook_filter_contained_elements' ) );
+		\add_action( 'bp_before_group_body', array( $this, 'hook_filter_contained_elements' ) );
+		\add_action( 'bp_after_group_body', array( $this, 'unhook_filter_contained_elements' ) );
+		\add_filter( 'bp_get_loggedin_user_avatar', array( $this, 'loggedin_user_avatar_in_anon_group' ), 90, 3 );
+		\add_filter( 'bp_get_loggedin_user_fullname', array( $this, 'loggedin_user_alias' ), 90 );
+		\add_filter( 'bp_get_loggedin_user_username', array( $this, 'loggedin_user_alias' ), 90 );
 	}
+
+	//phpcs:ignore
+	#region Join/Leave group.
 
 	/**
 	 * Check if the given user is an anonymous member of the given group.
@@ -224,7 +262,7 @@ class BuddyPressGroups extends Integration {
 		// \remove_action( 'groups_join_group', '\groups_update_last_activity' );
 
 		// Delete activity which was just added.
-		/* if ( \bp_is_active( 'activity' ) ) {
+		if ( \bp_is_active( 'activity' ) ) {
 			\bp_activity_delete(
 				array(
 					'component' => \buddypress()->groups->id,
@@ -233,21 +271,23 @@ class BuddyPressGroups extends Integration {
 					'item_id'   => $group_id,
 				)
 			);
-		}*/
+		}
 
 		// Reduce user's total group count, which was just increased by 1.
-		$total_group_count = (int) bp_get_user_meta( $user_id, 'total_group_count', true );
+		// Is that useful though?
+		/*$total_group_count = (int) bp_get_user_meta( $user_id, 'total_group_count', true );
 		if ( $total_group_count > 0 ) {
 			--$total_group_count;
 		}
 		bp_update_user_meta( $user_id, 'total_group_count', $total_group_count );
 
 		// Reduce group's total member count, which was just increased by 1.
+		// Is that useful though?
 		$total_members_count = (int) groups_get_groupmeta( $group_id, 'total_member_count', true );
 		if ( $total_members_count > 0 ) {
 			--$total_members_count;
 		}
-		groups_update_groupmeta( $group_id, 'total_member_count', $total_members_count );
+		groups_update_groupmeta( $group_id, 'total_member_count', $total_members_count );*/
 	}
 
 	/**
@@ -298,6 +338,11 @@ class BuddyPressGroups extends Integration {
 		}
 	}
 
+	//phpcs:ignore
+	#endregion 
+
+	//phpcs:ignore
+	#region hide anonymous members and groups
 	/**
 	 * When querying for members exclude anonymous members.
 	 *
@@ -334,6 +379,11 @@ class BuddyPressGroups extends Integration {
 			return $args;
 		}
 
+		// Show all groups if viewing your own profile.
+		if ( \bp_loggedin_user_id() === $args['user_id'] ) {
+			return $args;
+		}
+
 		$anonymous_groups = bp_get_user_meta( $args['user_id'], $this->meta_key_anonymous_groups, true );
 		if ( empty( $anonymous_groups ) ) {
 			return $args;
@@ -345,6 +395,11 @@ class BuddyPressGroups extends Integration {
 		return $args;
 	}
 
+	//phpcs:ignore
+	#endregion
+
+	//phpcs:ignore
+	#region obfuscate activities
 	/**
 	 * Obfuscate member's info if the activity should be anonymous.
 	 *
@@ -483,6 +538,43 @@ class BuddyPressGroups extends Integration {
 	}
 
 	/**
+	 * In the post actiivty form, change "what's new real_name" to "what's new alias".
+	 *
+	 * @param array $strings trnslations.
+	 * @return array
+	 */
+	public function bp_core_get_js_strings( $strings ) {
+		if ( ! \bp_is_group_activity() ) {
+			return $strings;
+		}
+
+		if ( ! isset( $strings['activity'] ) || ! isset( $strings['activity']['params'] ) ) {
+			return $strings;
+		}
+
+		$group_id = \bp_get_current_group_id();
+		$user_id  = \bp_loggedin_user_id();
+
+		if ( ! $this->is_anonymous_member( $group_id, $user_id ) ) {
+			return $strings;
+		}
+
+		$alias = SecretIdentity::get_instance()->get( $user_id );
+
+		$strings['activity']['params']['avatar_url'] = $alias['avatar'];
+		$strings['activity']['params']['avatar_alt'] = '';
+		$strings['activity']['params']['user_domain'] = $alias['url'];
+
+		$strings['activity']['strings']['whatsnewPlaceholder'] = sprintf(
+			// translators: alias/secret-name.
+			__( "What's new, %s?", 'buddypress' ),
+			$alias['name'],
+		);
+
+		return $strings;
+	}
+
+	/**
 	 * Should the given activity be anonymous?
 	 *
 	 * @param object $activity  Activity object.
@@ -541,4 +633,202 @@ class BuddyPressGroups extends Integration {
 
 		return $flag;
 	}
+
+	//phpcs:ignore
+	#endregion
+
+	//phpcs:ignore
+	#region contained elements
+
+	public function maybe_hook_filter_contained_elements() {
+		if ( \bp_is_active( 'groups' ) && \bp_is_group() ) {
+			$this->hook_filter_contained_elements();
+		}
+	}
+
+	public function hook_filter_contained_elements() {
+		$this->dealing_with_contained_elmenets = true;
+	}
+
+	public function unhook_filter_contained_elements() {
+		$this->dealing_with_contained_elmenets = false;
+	}
+
+	/**
+	 * Filter the user avatar when displayed inside a group,
+	 * if the member has joined the group anonymously.
+	 *
+	 * @param string $avatar User avatar string.
+	 * @param array  $r      Array of parsed arguments.
+	 * @param array  $args   Array of initial arguments.
+	 *
+	 * @retrn string
+	 */
+	public function loggedin_user_avatar_in_anon_group( $avatar, $r, $args ) {
+		if ( ! $this->dealing_with_contained_elmenets ) {
+			return $avatar;
+		}
+
+		$group_id = \bp_get_current_group_id();
+		$user_id  = \bp_loggedin_user_id();
+		if ( ! $this->is_anonymous_member( $group_id, $user_id ) ) {
+			return $avatar;
+		}
+
+		$secret = \RecycleBin\AnonymousMembers\SecretIdentity::get_instance()->get( $user_id );
+
+		return sprintf(
+			'<img loading="lazy" src="%1$s" class="avatar" width="%2$d" height="%3$d" alt="%4$s">',
+			esc_url( $secret['avatar'] ),
+			isset( $r['width'] ) ? absint( $r['width'] ) : '',
+			isset( $r['height'] ) ? absint( $r['height'] ) : '',
+			esc_attr__( 'Profile picture', 'rb-anonymous-members' )
+		);
+	}
+
+	/**
+	 * Filter the username, full name etc, when displayed inside a group,
+	 * if the member has joined the group anonymously.
+	 *
+	 * @param string $real Real name, username etc.
+	 * @return string
+	 */
+	public function loggedin_user_alias( $real ) {
+		if ( ! $this->dealing_with_contained_elmenets ) {
+			return $real;
+		}
+
+		$group_id = \bp_get_current_group_id();
+		$user_id  = \bp_loggedin_user_id();
+		if ( ! $this->is_anonymous_member( $group_id, $user_id ) ) {
+			return $real;
+		}
+
+		$secret = \RecycleBin\AnonymousMembers\SecretIdentity::get_instance()->get( $user_id );
+		return $secret['name'];
+	}
+
+	//phpcs:ignore
+	#endregion
+
+	//phpcs:ignore
+	#region Obfuscate Notifications
+
+	/**
+	 * Hide anonymous member's names from notifications, when required.
+	 *
+	 * @param string                         $description text.
+	 * @param \BP_Notifications_Notification $notification object.
+	 * @return string
+	 */
+	public function filter_notification_description( $description, $notification ) {
+		$actions = array( 'update_reply', 'comment_reply' );
+		if ( 'activity' === $notification->component_name && in_array( $notification->component_action, $actions, true ) ) {
+			$activity_id  = $notification->item_id;
+			$commenter_id = $notification->secondary_item_id;
+			if ( $activity_id && $commenter_id ) {
+				$activity_obj     = new stdClass();
+				$activity_obj->id = $activity_id;
+				if ( $this->is_activity_anonymous( $activity_obj, $commenter_id ) ) {
+					$text = '';
+					$link = '';
+					switch ( $notification->component_action ) {
+						case 'update_reply':
+							$text = __( 'You have comments on one of your updates.', 'rb-anonymous-members' );
+							$link = add_query_arg( 'rid', (int) $notification->id, \bp_activity_get_permalink( $activity_id ) );
+							break;
+
+						case 'comment_reply':
+							$text = __( 'You have replies to one of your comments.', 'rb-anonymous-members' );
+							$link = add_query_arg( 'crid', (int) $notification->id, \bp_activity_get_permalink( $activity_id ) );
+							break;
+					}
+
+					if ( ! empty( $text ) && ! empty( $link ) ) {
+						$description = sprintf(
+							'<a href="%s">%s</a>',
+							esc_url( $link ),
+							esc_html( $text )
+						);
+					}
+				}
+			}
+		}
+		return $description;
+	}
+
+	/**
+	 * Hide anonymous member's names from notifications, when required.
+	 *
+	 * @param string|array $description     HTML anchor tag or array containing text and url.
+	 * @param string       $link            The permalink for the interaction.
+	 * @param int          $total_items     How many items being notified about.
+	 * @param int          $activity_id     ID of the activity item being formatted.
+	 * @param int          $user_id         ID of the user who inited the interaction.
+	 *
+	 * @return string|array
+	 */
+	public function filter_update_reply_notification_description( $description, $link, $total_items, $activity_id, $user_id ) {
+		$activity_obj     = new stdClass();
+		$activity_obj->id = $activity_id;
+		if ( $this->is_activity_anonymous( $activity_obj ) ) {
+			$text = __( 'You have comments on one of your updates.', 'rb-anonymous-members' );
+			if ( $total_items < 2 ) {
+				$text = __( 'You have a new comment on one of your updates.', 'rb-anonymous-members' );
+			}
+			$link = \bp_activity_get_permalink( $activity_id );
+
+			if ( is_array( $description ) ) {
+				$description['text'] = $text;
+				$description['link'] = $link;
+			} else {
+				$description = sprintf(
+					'<a href="%s">%s</a>',
+					esc_url( $link ),
+					esc_html( $text )
+				);
+			}
+		}
+
+		return $description;
+	}
+
+	/**
+	 * Hide anonymous member's names from notifications, when required.
+	 *
+	 * @param string|array $description     HTML anchor tag or array containing text and url.
+	 * @param string       $link            The permalink for the interaction.
+	 * @param int          $total_items     How many items being notified about.
+	 * @param int          $activity_id     ID of the activity item being formatted.
+	 * @param int          $user_id         ID of the user who inited the interaction.
+	 *
+	 * @return string|array
+	 */
+	public function filter_comment_reply_notification_description( $description, $link, $total_items, $activity_id, $user_id ) {
+		$activity_obj     = new stdClass();
+		$activity_obj->id = $activity_id;
+		if ( $this->is_activity_anonymous( $activity_obj ) ) {
+			$text = __( 'You have replies on one of your comments.', 'rb-anonymous-members' );
+			if ( $total_items < 2 ) {
+				$text = __( 'You have a new reply on one of your comments.', 'rb-anonymous-members' );
+			}
+			$link = \bp_activity_get_permalink( $activity_id );
+
+			if ( is_array( $description ) ) {
+				$description['text'] = $text;
+				$description['link'] = $link;
+			} else {
+				$description = sprintf(
+					'<a href="%s">%s</a>',
+					esc_url( $link ),
+					esc_html( $text )
+				);
+			}
+		}
+
+		return $description;
+	}
+
+	//phpcs:ignore
+	#endregion
 }
