@@ -24,21 +24,21 @@ if ( ! trait_exists( '\RecycleBin\AnonymousMembers\TraitSingleton' ) ) {
 		/**
 		 * The singleton object.
 		 *
-		 * @var self
+		 * @var static
 		 */
 		protected static $instance;
 
 		/**
 		 * Get the single instance of this class.
 		 *
-		 * @return self
+		 * @return static
 		 */
 		final public static function get_instance() {
-			if ( is_null( self::$instance ) ) {
-				self::$instance = new self();
+			if ( is_null( static::$instance ) ) {
+				static::$instance = new static();
 			}
 
-			return self::$instance;
+			return static::$instance;
 		}
 
 		/**

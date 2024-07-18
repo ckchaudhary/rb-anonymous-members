@@ -66,6 +66,9 @@ final class Plugin {
 		if ( $buddypress_active ) {
 			$this->all_integrations['buddypress_groups'] = \RecycleBin\AnonymousMembers\Integrations\BuddyPressGroups::get_instance();
 		}
+		if ( $buddyboss_active ) {
+			$this->all_integrations['buddyboss_groups'] = \RecycleBin\AnonymousMembers\Integrations\BuddyBossGroups::get_instance();
+		}
 	}
 
 	/**
