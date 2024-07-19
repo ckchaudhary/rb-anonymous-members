@@ -13,7 +13,9 @@
         "psr-4": {
             "RecycleBin\\AnonymousMembers\\": "src/"
         },
-		"files": []
+		"files": [
+			"src/functions-misc.php"
+		]
     },
     "require": {}
 }

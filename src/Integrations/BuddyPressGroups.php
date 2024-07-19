@@ -2,6 +2,9 @@
 /**
  * BuddyPress groups integration.
  *
+ * @todo: Remove this file, it is no longer necessary.
+ * The code has been distributed into various files inside BuddyPress folder.
+ * 
  * @package Anonymous Members
  * @author ckchaudhary
  */

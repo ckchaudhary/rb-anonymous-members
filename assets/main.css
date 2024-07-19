@@ -47,6 +47,39 @@
 	right: -1px
 }
 
+.rb-am-icon.gg-info {
+	box-sizing: border-box;
+	position: relative;
+	display: block;
+	transform: scale(var(--ggs,1));
+	width: 20px;
+	height: 20px;
+	border: 2px solid;
+	border-radius: 40px
+}
+   
+.rb-am-icon.gg-info::after,
+.rb-am-icon.gg-info::before {
+	content: "";
+	display: block;
+	box-sizing: border-box;
+	position: absolute;
+	border-radius: 3px;
+	width: 2px;
+	background: currentColor;
+	left: 7px
+}
+   
+.rb-am-icon.gg-info::after {
+	bottom: 2px;
+	height: 8px
+}
+   
+.rb-am-icon.gg-info::before {
+	height: 2px;
+	top: 2px
+} 
+
 /* single group - join anonymously button */
 .group-button.join-anonymously .group-button.join-group .rb-am-icon{
 	display: inline-block;
