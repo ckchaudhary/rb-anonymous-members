@@ -32,6 +32,7 @@ final class SecretIdentity {
 	 * @param int $user_id Id of the user.
 	 *
 	 * @return array {
+	 *   @type int    $id     User id.
 	 *   @type string $name   Alias for this user.
 	 *   @type string $url    Url of anonymous user profile.
 	 *   @type string $avatar Url of the avatar image.
@@ -39,6 +40,7 @@ final class SecretIdentity {
 	 */
 	public function get( $user_id = 0 ) {
 		$retval = array(
+			'id'     => $user_id,
 			'url'    => '#',
 			'name'   => 'Phantom',
 			'avatar' => RB_AM_P_URL . 'assets/mystery-man.png',
