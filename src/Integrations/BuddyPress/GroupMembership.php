@@ -66,6 +66,9 @@ class GroupMembership {
 
 		// Hide anonymous groups from member's group query.
 		\add_filter( 'bp_after_has_groups_parse_args', array( $this, 'filter_bp_has_groups_args' ), 90 );
+
+		// Anonymous members shouldn't be able to send invitations.
+		\add_filter( 'bp_user_can', array( $this, 'bp_groups_user_can_filter' ), 90, 5 );
 	}
 
 	//phpcs:ignore
@@ -359,4 +362,49 @@ class GroupMembership {
 
 	//phpcs:ignore
 	#endregion
+
+	/**
+	 * Filter the bp_user_can value to determine what the user can do
+	 * with regards to a specific group.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool   $retval     Whether or not the current user has the capability.
+	 * @param int    $user_id    The id of the user in question.
+	 * @param string $capability The capability being checked for.
+	 * @param int    $site_id    Site ID. Defaults to the BP root blog.
+	 * @param array  $args       Array of extra arguments passed.
+	 *
+	 * @return bool
+	 */
+	public function bp_groups_user_can_filter( $retval, $user_id, $capability, $site_id, $args ) {
+		if ( ! $user_id ) {
+			return $retval;
+		}
+
+		if ( empty( $args['group_id'] ) ) {
+			$group_id = bp_get_current_group_id();
+		} else {
+			$group_id = (int) $args['group_id'];
+		}
+		if ( ! $group_id ) {
+			return $retval;
+		}
+
+		switch ( $capability ) {
+			case 'groups_send_invitation':
+				// All's well if ther user can't send invitation anyway.
+				if ( ! $retval ) {
+					break;
+				}
+
+				// Anonymous members can't send invitations.
+				if ( $this->is_anonymous_member( $group_id, $user_id ) ) {
+					$retval = false;
+				}
+				break;
+		}
+
+		return $retval;
+	}
 }
