@@ -2,6 +2,13 @@
 /**
  * BuddyPress groups integration.
  *
+ * This works by
+ *	- Having the member join the group.
+ * 	- Then hiding this fact everywhere. For example:
+ * 		- Hiding this member from group's members list
+ * 		- Hinding this group from member's groups list.
+ * 		- Replacing user's name with alias in activity posts, comments, etc.
+ * 
  * @package Anonymous Members
  * @subpackage BuddyPress
  * @author ckchaudhary
