@@ -200,11 +200,11 @@ final class Plugin {
 		}
 
 		if ( $buddypress_active ) {
-			$this->integrations['buddypress_groups'] = new \RecycleBin\AnonymousMembers\Integrations\BuddyPress\Groups( 'buddypress_groups', 'BuddyPress Groups' );
+			$this->integrations['buddypress_groups'] = new \RecycleBin\AnonymousMembers\Integrations\BuddyPress2\Groups( 'buddypress_groups', 'BuddyPress Groups' );
 		}
-		if ( $buddyboss_active ) {
+		/*if ( $buddyboss_active ) {
 			$this->integrations['buddypress_groups'] = new \RecycleBin\AnonymousMembers\Integrations\BuddyBoss\Groups( 'buddypress_groups', 'BuddyBoss Groups' );
-		}
+		}*/
 	}
 
 	/**
