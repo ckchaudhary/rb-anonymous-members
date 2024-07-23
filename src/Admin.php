@@ -184,6 +184,7 @@ class Admin {
 		register_setting( $this->option_name, $this->option_name, array( $this, 'plugin_options_validate' ) );
 
 		add_settings_section( 'section_user_profiles', __( 'User Profiles', 'rb-anonymous-members' ), array( $this, 'section_user_profiles_desc' ), __FILE__ );
+		add_settings_field( 'anonymous_user_id', __( 'Anonymous User', 'rb-anonymous-members' ), array( $this, 'anonymous_user_id' ), __FILE__, 'section_user_profiles' );
 		add_settings_field( 'user_alias_prefix', __( 'Alias Prefix', 'rb-anonymous-members' ), array( $this, 'user_alias_prefix' ), __FILE__, 'section_user_profiles' );
 
 		add_settings_section( 'section_integration', __( 'Integrations', 'rb-anonymous-members' ), array( $this, 'section_integration_desc' ), __FILE__ );
@@ -235,6 +236,10 @@ class Admin {
 
 		foreach ( $input as $field_name => $field_value ) {
 			switch ( $field_name ) {
+				case 'anonymous_user_id':
+					$field_value = \absint( trim( $field_value ) );
+					break;
+
 				case 'user_alias_prefix':
 					$field_value = \sanitize_text_field( $field_value );
 					break;
@@ -270,6 +275,28 @@ class Admin {
 		}
 
 		return $input;
+	}
+
+	/**
+	 * Undocumented function
+	 *
+	 * @return void
+	 */
+	public function anonymous_user_id() {
+		$field_name  = __FUNCTION__;
+		$field_value = $this->option( $field_name );
+		$input_name  = $this->option_name . '[' . $field_name . ']';
+
+		printf(
+			'<input type="number" name="%s" value="%s">',
+			esc_attr( $input_name ),
+			esc_attr( $field_value )
+		);
+
+		printf(
+			'<p class="description">%s</p>',
+			esc_html__( 'Enter the user id of the dummy member.', 'rb-anonymous-members' )
+		);
 	}
 
 	/**

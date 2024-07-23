@@ -74,6 +74,33 @@ final class Plugin {
 	}
 
 	/**
+	 * Details of 'the stig'.
+	 *
+	 * @var \WP_User
+	 */
+	private $anonymous_user = false;
+
+	/**
+	 * Get the details of 'the stig'.
+	 *
+	 * @return \WP_User|boolean false if the user not found/set.
+	 */
+	public function get_anonymous_user() {
+		if ( empty( $this->anonymous_user ) ) {
+			$this->anonymous_user = 'empty';
+			$user_id = $this->option( 'anonymous_user_id' );
+			if ( $user_id ) {
+				$user = \get_user_by( 'id', $user_id );
+				if ( $user ) {
+					$this->anonymous_user = $user;
+				}
+			}
+		}
+
+		return \is_a( $this->anonymous_user, '\WP_User' ) ? $this->anonymous_user : false;
+	}
+
+	/**
 	 * All integrations.
 	 *
 	 * @var array
