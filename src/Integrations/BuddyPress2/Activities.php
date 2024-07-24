@@ -50,19 +50,21 @@ class Activities {
 		// in the post actiivty form, change "what's new real_name" to "what's new alias".
 		\add_filter( 'bp_core_get_js_strings', array( $this, 'bp_core_get_js_strings' ), 90 );
 
+		// --------------- Activity post in group -------------------------
+
 		// Before posting activity update, change user id from anonymous to stig.
+		// This is important to bypass groups_is_user_member check.
 		\add_filter( 'bp_before_groups_post_update_parse_args', array( $this, 'group_post_update_anonymously' ) );
-
-		// After activity has been posted, save the anonymous user's id in meta.
-		// This is not required as 'after_bp_activity_add' handles it.
-		//\add_action( 'bp_groups_posted_update', array( $this, 'after_group_activity_post' ), 10, 4 );
-
+		// Add original users id, and Stig's profile url into activity details.
+		\add_filter( 'bp_before_groups_record_activity_parse_args', array( $this, 'groups_record_activity_anonymously' ) );
 		// Replace Stig's details with anonymous member's alias.
 		\add_filter( 'bp_groups_format_activity_action_group_activity_update', array( $this, 'action_group_activity_update' ), 3, 2 );
 		\add_filter( 'bp_get_activity_action_pre_meta', array( $this, 'action_group_activity_update' ), 90, 2 );
-		// In activity comments, replace Stig's details with original user's alias.
-		\add_filter( 'bp_activity_comment_name', array( $this, 'bp_activity_comment_name' ), 90 );
 
+		// ----------------------------------------------------------------
+
+		// ---------- Commenting on activity posts in a group --------------
+		
 		// Allow anonymously joined members to comment on activities.
 		\add_filter( 'bp_activity_can_comment', array( $this, 'filter_activity_can_comment' ), 100 );
 		\add_filter( 'bp_activity_can_comment_reply', array( $this, 'filter_activity_can_comment_reply' ), 100, 2 );
@@ -74,6 +76,10 @@ class Activities {
 		*/
 		// Before adding any activity, replace actual member with Stig, wherever applicable.
 		\add_filter( 'bp_before_activity_add_parse_args', array( $this, 'filter_activity_add_args' ) );
+
+		// In activity comments, replace Stig's details with original user's alias.
+		\add_filter( 'bp_activity_comment_name', array( $this, 'bp_activity_comment_name' ), 90 );
+		// ----------------------------------------------------------------
 
 		// After an activity is added, store original user's id in meta, if applicable.
 		\add_action( 'bp_activity_add', array( $this, 'after_bp_activity_add' ), 10, 2 );
@@ -220,45 +226,48 @@ class Activities {
 		// Post as Stig.
 		$anon_user = rb_anonymous_members()->get_anonymous_user();
 		if ( $anon_user ) {
-			// 'org_user_id' is used by $this->after_bp_activity_add() .
-			$r['org_user_id'] = $r['user_id'];
-			$r['user_id']     = $anon_user->ID;
+			$r['user_id'] = $anon_user->ID;
 		}
 
 		return $r;
 	}
 
 	/**
-	 * After activity has been posted, save the anonymous user's id in meta.
+	 * Add original users id, and Stig's profile url into activity details.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param string $content     The content of the update.
-	 * @param int    $user_id     ID of the user posting the update.
-	 * @param int    $group_id    ID of the group being posted to.
-	 * @param bool   $activity_id Whether or not the activity recording succeeded.
-	 *
-	 * @return bool
+	 * @param array $r Arguments.
+	 * @return array
 	 */
-	public function after_group_activity_post( $content, $user_id, $group_id, $activity_id ) {
+	public function groups_record_activity_anonymously( $r ) {
+		$bp = \buddypress();
+
+		$group_id = (int) $r['group_id'];
+		if ( ! $group_id && ! empty( $bp->groups->current_group->id ) ) {
+			$group_id = (int) $bp->groups->current_group->id;
+		}
+
 		// Do nothing if group doesn't allow anonymous members.
 		$allow = (int) groups_get_groupmeta( $group_id, 'allow_anonymous_members' );
-		if ( ! $allow || ! \is_user_logged_in() ) {
-			return false;
+		if ( ! $allow ) {
+			return $r;
 		}
 
 		// Do nothing if user isn't anonymous member.
 		if ( ! GroupMembership::get_instance()->is_anonymous_member( $group_id, \bp_loggedin_user_id() ) ) {
-			return false;
+			return $r;
 		}
 
-		// Do nothing if it wasn't Stig.
+		// Post as Stig.
 		$anon_user = rb_anonymous_members()->get_anonymous_user();
-		if ( ! $anon_user || $anon_user->ID !== $user_id ) {
-			return false;
+		if ( $anon_user ) {
+			// 'org_user_id' is used by $this->after_bp_activity_add() .
+			$r['org_user_id']  = \bp_loggedin_user_id();
+			$r['user_id']      = $anon_user->ID;
+			$r['primary_link'] = \bp_members_get_user_url( $anon_user->ID );
 		}
 
-		\bp_activity_add_meta( $activity_id, $this->meta_key_org_user_id, \bp_loggedin_user_id() );
+		return $r;
 	}
 
 	/**
@@ -269,21 +278,27 @@ class Activities {
 	 * @return string
 	 */
 	public function action_group_activity_update( $action, $activity ) {
-		$hidden_member = $this->is_activity_anonymous( $activity );
-		if ( ! $hidden_member ) {
+		$alias = $this->is_activity_anonymous( $activity );
+		if ( ! $alias ) {
 			return $action;
 		}
 
 		$user_link = sprintf(
-			'<span class="rb-anonymous-membership"><span class="rb-am-icon gg-ghost-character"></span><span class="rb-am-text">%s</span></span>',
-			esc_html( $hidden_member['name'] )
+			'<a href="%s">%s</a>',
+			esc_url( \bp_members_get_user_url( $activity->user_id ) ),
+			esc_html( $alias['name'] )
 		);
+
+		$group = \bp_groups_get_activity_group( $activity->item_id );
+
+		$group_link = '<a href="' . esc_url( bp_get_group_url( $group ) ) . '">' . esc_html( $group->name ) . '</a>';
 
 		// Set the Activity update posted in a Group action.
 		$action = sprintf(
-			/* translators: 1: the user's secret name. */
-			esc_html__( '%1$s posted an update.', 'rb-anonymous-members' ),
-			$user_link
+			/* translators: 1: the user link. 2: the group link. */
+			esc_html__( '%1$s posted an update in the group %2$s', 'buddypress' ),
+			$user_link,
+			$group_link
 		);
 
 		return $action;
@@ -456,7 +471,7 @@ class Activities {
 			$can_favorite = false;
 		}
 
-		return false;
+		return $can_favorite;
 	}
 
 	/**
@@ -477,7 +492,7 @@ class Activities {
 		// Was this activity made by Stig?
 		$stig = rb_anonymous_members()->get_anonymous_user();
 		if ( $stig && $activity->user_id === $stig->ID ) {
-			$org_user_id = \bp_activity_get_meta( $activity->id, $this->meta_key_org_user_id );
+			$org_user_id = (int) \bp_activity_get_meta( $activity->id, $this->meta_key_org_user_id );
 			if ( $org_user_id && \bp_loggedin_user_id() === (int) $org_user_id ) {
 				$can_delete = true;
 			}
