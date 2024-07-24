@@ -5,6 +5,7 @@
  * @package Anonymous Members
  * @subpackage BuddyPress
  * @author ckchaudhary
+ * @since 1.0.0
  */
 
 namespace RecycleBin\AnonymousMembers\Integrations\BuddyPress2;
@@ -41,6 +42,8 @@ class Activities {
 	/**
 	 * Initialize the object.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	protected function init() {
@@ -57,9 +60,11 @@ class Activities {
 		// Replace Stig's details with anonymous member's alias.
 		\add_filter( 'bp_groups_format_activity_action_group_activity_update', array( $this, 'action_group_activity_update' ), 3, 2 );
 		\add_filter( 'bp_get_activity_action_pre_meta', array( $this, 'action_group_activity_update' ), 90, 2 );
+		// In activity comments, replace Stig's details with original user's alias.
+		\add_filter( 'bp_activity_comment_name', array( $this, 'bp_activity_comment_name' ), 90 );
 
 		// Allow anonymously joined members to comment on activities.
-		\add_filter( 'bp_activity_can_comment', array( $this, 'filter_activity_can_comment' ), 100, 1 );
+		\add_filter( 'bp_activity_can_comment', array( $this, 'filter_activity_can_comment' ), 100 );
 		\add_filter( 'bp_activity_can_comment_reply', array( $this, 'filter_activity_can_comment_reply' ), 100, 2 );
 
 		/*
@@ -72,17 +77,11 @@ class Activities {
 
 		// After an activity is added, store original user's id in meta, if applicable.
 		\add_action( 'bp_activity_add', array( $this, 'after_bp_activity_add' ), 10, 2 );
-	}
 
-	/**
-	 * Check if the given user is an anonymous member of the given group.
-	 *
-	 * @param int $group_id Id of the group in question.
-	 * @param int $user_id  Id of the user in question.
-	 * @return boolean
-	 */
-	public function is_anonymous_member( $group_id, $user_id ) {
-		return GroupMembership::get_instance()->is_anonymous_member( $group_id, $user_id );
+		// Prevent anonymous members from favoriting an activity.
+		\add_filter( 'bp_activity_can_favorite', array( $this, 'bp_activity_can_favorite' ), 20 );
+		// Allow users to delete activities they made anonymously.
+		\add_filter( 'bp_activity_user_can_delete', array( $this, 'bp_activity_user_can_delete' ), 90, 2 );
 	}
 
 	/**
@@ -102,7 +101,7 @@ class Activities {
 	public function get_hidden_author( $activity_id ) {
 		$hidden_mem_id = \bp_activity_get_meta( $activity_id, $this->meta_key_org_user_id );
 		if ( $hidden_mem_id ) {
-			return \RecycleBin\AnonymousMembers\SecretIdentity::get_instance()->get( $hidden_mem_id );
+			return SecretIdentity::get_instance()->get( $hidden_mem_id );
 		}
 
 		return false;
@@ -173,7 +172,7 @@ class Activities {
 		$group_id = \bp_get_current_group_id();
 		$user_id  = \bp_loggedin_user_id();
 
-		if ( ! $this->is_anonymous_member( $group_id, $user_id ) ) {
+		if ( ! GroupMembership::get_instance()->is_anonymous_member( $group_id, $user_id ) ) {
 			return $strings;
 		}
 
@@ -291,6 +290,27 @@ class Activities {
 	}
 
 	/**
+	 * In activity comments, replace Stig's details with original user's alias.
+	 *
+	 * @param string $name Original name to be displayed.
+	 * @return string
+	 */
+	public function bp_activity_comment_name( $name ) {
+		global $activities_template;
+
+		// Within the activity comment loop, the current activity should be set
+		// to current_comment. Otherwise, just use activity.
+		$activity = isset( $activities_template->activity->current_comment ) ? $activities_template->activity->current_comment : $activities_template->activity;
+
+		$org_author_alias = $this->is_activity_anonymous( $activity );
+		if ( $org_author_alias ) {
+			$name = $org_author_alias['name'];
+		}
+
+		return $name;
+	}
+
+	/**
 	 * Function used to determine if a user can comment on a group activity item.
 	 *
 	 * Used as a filter callback to 'bp_activity_can_comment'.
@@ -323,7 +343,7 @@ class Activities {
 		}
 
 		// If the current user has joined the group anonymously and is not banned.
-		if ( $this->is_anonymous_member( $group_id, \bp_loggedin_user_id() ) && ! groups_is_user_banned( \bp_loggedin_user_id(), $group_id ) ) {
+		if ( GroupMembership::get_instance()->is_anonymous_member( $group_id, \bp_loggedin_user_id() ) && ! groups_is_user_banned( \bp_loggedin_user_id(), $group_id ) ) {
 			$retval = true;
 		}
 
@@ -357,6 +377,8 @@ class Activities {
 	/**
 	 * Before adding any activity, replace actual member with Stig, wherever applicable.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param array $r Arguments passed to bp_activity_add function.
 	 * @return array
 	 */
@@ -387,7 +409,7 @@ class Activities {
 		// Check if the comment is on a group activity.
 		if ( 'groups' === $ancestor->component ) {
 			// If the current user is an anonymous member of the group.
-			if ( $this->is_anonymous_member( $ancestor->item_id, $r['user_id'] ) ) {
+			if ( GroupMembership::get_instance()->is_anonymous_member( $ancestor->item_id, $r['user_id'] ) ) {
 				// Replace user id with Stig's id.
 				$stig = rb_anonymous_members()->get_anonymous_user();
 				if ( $stig ) {
@@ -404,6 +426,8 @@ class Activities {
 	/**
 	 * After an activity is added, store original user's id in meta, if applicable.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param array $r           Arguments for the bp_activity_add function.
 	 * @param int   $activity_id Id of the activity item that was just created.
 	 * @return void
@@ -412,5 +436,53 @@ class Activities {
 		if ( isset( $r['org_user_id'] ) ) {
 			bp_activity_add_meta( $activity_id, $this->meta_key_org_user_id, $r['org_user_id'] );
 		}
+	}
+
+	/**
+	 * Prevent anonymous group members from favoriting group activities.
+	 * Is hooked to 'bp_activity_can_favorite' filter.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool $can_favorite Original.
+	 * @return bool
+	 */
+	public function bp_activity_can_favorite( $can_favorite ) {
+		if ( ! $can_favorite || ! \bp_is_group() ) {
+			return $can_favorite;
+		}
+
+		if ( GroupMembership::get_instance()->is_anonymous_member( \bp_get_current_group_id(), \bp_loggedin_user_id() ) ) {
+			$can_favorite = false;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Allow users to delete activities they made anonymously.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool   $can_delete Whether the user can delete the item.
+	 * @param object $activity   Current activity item object.
+	 *
+	 * @return bool
+	 */
+	public function bp_activity_user_can_delete( $can_delete, $activity ) {
+		if ( $can_delete || ! \is_user_logged_in() ) {
+			return $can_delete;
+		}
+
+		// Was this activity made by Stig?
+		$stig = rb_anonymous_members()->get_anonymous_user();
+		if ( $stig && $activity->user_id === $stig->ID ) {
+			$org_user_id = \bp_activity_get_meta( $activity->id, $this->meta_key_org_user_id );
+			if ( $org_user_id && \bp_loggedin_user_id() === (int) $org_user_id ) {
+				$can_delete = true;
+			}
+		}
+
+		return $can_delete;
 	}
 }
