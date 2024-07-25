@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) ? '' : exit();
 
 /**
  * Add settings screen in buddypress groups.
- * Show the custom front page if enabled.
  */
 class GroupExtension extends \BP_Group_Extension {
 	/**
