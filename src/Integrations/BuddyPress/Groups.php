@@ -14,7 +14,7 @@
  * @author ckchaudhary
  */
 
-namespace RecycleBin\AnonymousMembers\Integrations\BuddyPress2;
+namespace RecycleBin\AnonymousMembers\Integrations\BuddyPress;
 
 defined( 'ABSPATH' ) ? '' : exit();
 

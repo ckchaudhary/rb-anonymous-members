@@ -8,7 +8,7 @@
  * @since 1.0.0
  */
 
-namespace RecycleBin\AnonymousMembers\Integrations\BuddyPress2;
+namespace RecycleBin\AnonymousMembers\Integrations\BuddyPress;
 
 use RecycleBin\AnonymousMembers\SecretIdentity;
 
