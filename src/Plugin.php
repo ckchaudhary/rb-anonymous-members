@@ -190,21 +190,13 @@ final class Plugin {
 	 */
 	public function load_integrations() {
 		$buddypress_active = false;
-		$buddyboss_active  = false;
 		if ( function_exists( '\buddypress' ) ) {
 			$buddypress_active = true;
-			if ( isset( \buddypress()->buddyboss ) ) {
-				$buddypress_active = false;
-				$buddyboss_active  = true;
-			}
 		}
 
 		if ( $buddypress_active ) {
-			$this->integrations['buddypress_groups'] = new \RecycleBin\AnonymousMembers\Integrations\BuddyPress2\Groups( 'buddypress_groups', 'BuddyPress Groups' );
+			$this->integrations['buddypress_groups'] = new \RecycleBin\AnonymousMembers\Integrations\BuddyPress\Groups( 'buddypress_groups', 'BuddyPress Groups' );
 		}
-		/*if ( $buddyboss_active ) {
-			$this->integrations['buddypress_groups'] = new \RecycleBin\AnonymousMembers\Integrations\BuddyBoss\Groups( 'buddypress_groups', 'BuddyBoss Groups' );
-		}*/
 	}
 
 	/**
