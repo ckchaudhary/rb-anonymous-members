@@ -81,7 +81,7 @@
 } 
 
 /* single group - join anonymously button */
-.group-button.join-anonymously .group-button.join-group .rb-am-icon{
+.group-button.join-anonymously .group-button .rb-am-icon{
 	margin-right: 10px;
 	vertical-align: top;
 }

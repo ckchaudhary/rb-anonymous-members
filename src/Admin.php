@@ -184,7 +184,7 @@ class Admin {
 		register_setting( $this->option_name, $this->option_name, array( $this, 'plugin_options_validate' ) );
 
 		add_settings_section( 'section_user_profiles', __( 'User Profiles', 'rb-anonymous-members' ), array( $this, 'section_user_profiles_desc' ), __FILE__ );
-		add_settings_field( 'anonymous_user_id', __( 'Anonymous User', 'rb-anonymous-members' ), array( $this, 'anonymous_user_id' ), __FILE__, 'section_user_profiles' );
+		add_settings_field( 'anonymous_user_id', __( 'Proxy User', 'rb-anonymous-members' ), array( $this, 'anonymous_user_id' ), __FILE__, 'section_user_profiles' );
 		add_settings_field( 'user_alias_prefix', __( 'Alias Prefix', 'rb-anonymous-members' ), array( $this, 'user_alias_prefix' ), __FILE__, 'section_user_profiles' );
 
 		add_settings_section( 'section_integration', __( 'Integrations', 'rb-anonymous-members' ), array( $this, 'section_integration_desc' ), __FILE__ );
@@ -295,8 +295,23 @@ class Admin {
 
 		printf(
 			'<p class="description">%s</p>',
-			esc_html__( 'Enter the user id of the dummy member.', 'rb-anonymous-members' )
+			esc_html__( 'Enter the user id of the proxy member.', 'rb-anonymous-members' )
 		);
+
+		$description  = '<strong>' . esc_html__( 'What is this?', 'rb-anonymous-members' ) . '</strong> : ';
+		$description .= esc_html__( 'This plugin works by making use of one real user account for all other anonymous users.', 'rb-anonymous-members' );
+		$description .= '<br>';
+		$description .= esc_html__( 'For example, when someone( e.g: \'John\' ) joins a group anonymously, internally the proxy account becomes the member of that group and not John. ', 'rb-anonymous-members' );
+		$description .= esc_html__( 'Then if John posts something in the group, internally it is posted from the proxy account and not from John\'s account.', 'rb-anonymous-members' );
+		$description .= '<br>';
+		$description .= sprintf(
+			'<a href="https://blogs.recycleb.in/2024/07/buddypress-buyddyboss-anonymous-members/">%s</a>',
+			esc_html__( 'Know More', 'rb-anonymous-members' )
+		);
+		$description .= '&nbsp;<a href="https://blogs.recycleb.in/2024/07/buddypress-buyddyboss-anonymous-members/" rel="noopener noreferrer nofollow" target="_blank"><small><span class="dashicons dashicons-external"></span></small></a>';
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<p class="description">' . $description . '</p>';
 	}
 
 	/**

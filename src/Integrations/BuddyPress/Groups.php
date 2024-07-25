@@ -86,7 +86,6 @@ class Groups extends \RecycleBin\AnonymousMembers\Integrations\Integration {
 		if ( \bp_is_active( 'groups' ) && 'yes' === $this->get_option( 'is_enabled' ) ) {
 			GroupMembership::get_instance();
 			Activities::get_instance();
-			//Notifications::get_instance();
 		}
 	}
 
@@ -97,7 +96,7 @@ class Groups extends \RecycleBin\AnonymousMembers\Integrations\Integration {
 	 */
 	public function register_bp_group_extension() {
 		if ( \bp_is_active( 'groups' ) ) {
-			\bp_register_group_extension( 'RecycleBin\AnonymousMembers\Integrations\BuddyPress2\GroupExtension' );
+			\bp_register_group_extension( 'RecycleBin\AnonymousMembers\Integrations\BuddyPress\GroupExtension' );
 		}
 	}
 
@@ -107,16 +106,14 @@ class Groups extends \RecycleBin\AnonymousMembers\Integrations\Integration {
 	 * @return string
 	 */
 	public function get_admin_description() {
-		$link = sprintf(
-			'<a href="https://blogs.recycleb.in/2024/07/buddypress-buyddyboss-anonymous-members/" target="_blank" rel="nofollow noopener noreferrer">%s</a>',
+		$desc  = esc_html__( 'This enables members to join groups anonymously.', 'rb-anonymous-members' );
+		$desc .= '&nbsp;';
+		$desc .= sprintf(
+			'<a href="https://blogs.recycleb.in/2024/07/buddypress-buyddyboss-anonymous-members/">%s</a>',
 			esc_html__( 'Know More', 'rb-anonymous-members' )
 		);
-
-		$desc = sprintf(
-			// translators: 1: External link to read in details.
-			__( 'This enables members to join groups anonymously. %s', 'rb-anonymous-members' ),
-			$link
-		);
+		$desc .= '&nbsp;';
+		$desc .= '<a href="https://blogs.recycleb.in/2024/07/buddypress-buyddyboss-anonymous-members/" rel="noopener noreferrer nofollow" target="_blank"><small><span class="dashicons dashicons-external"></span></small></a>';
 
 		$html = '<p>' . $desc . '</p>';
 		if ( ! \bp_is_active( 'groups' ) ) {

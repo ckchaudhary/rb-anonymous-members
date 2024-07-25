@@ -78,11 +78,13 @@ final class SecretIdentity {
 	/**
 	 * Get the prefix for anonymous names( aliases ).
 	 *
-	 * @todo: add a setting for this.
-	 *
 	 * @return string
 	 */
 	public function name_prefix() {
-		return 'Boo-';
+		$prefix = rb_anonymous_members()->option( 'user_alias_prefix' );
+		if ( ! $prefix ) {
+			$prefix = 'Ghost-';
+		}
+		return stripslashes( $prefix );
 	}
 }
