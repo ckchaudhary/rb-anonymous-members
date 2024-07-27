@@ -1,0 +1,196 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: RB Anonymous Members\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-07-27 04:56+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.10; wp-6.6.1\n"
+"X-Domain: rb-anonymous-members"
+
+#. 1: the user link. 2: the group link.
+#: src/Integrations/BuddyPress/Activities.php:299
+#, php-format
+msgid "%1$s posted an update in the group %2$s"
+msgstr ""
+
+#: src/Integrations/BuddyPress/GroupExtension.php:64
+msgid "( Opens in new tab )"
+msgstr ""
+
+#: src/Admin.php:189
+msgid "Alias Prefix"
+msgstr ""
+
+#: src/Integrations/BuddyPress/GroupExtension.php:49
+msgid "Allow members to join anonymously"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"Allow your BuddyBoss & BuddyPress website's members to join groups "
+"anonymously."
+msgstr ""
+
+#: src/Integrations/Integration.php:87
+msgid "Enabled?"
+msgstr ""
+
+#: src/Integrations/BuddyPress/Groups.php:122
+msgid "Enabling this integration will have no effect."
+msgstr ""
+
+#: src/Integrations/BuddyPress/Groups.php:48
+msgid "Enter that page's url here."
+msgstr ""
+
+#: src/Admin.php:299
+msgid "Enter the user id of the proxy member."
+msgstr ""
+
+#: src/Admin.php:305
+msgid ""
+"For example, when someone( e.g: 'John' ) joins a group anonymously, "
+"internally the proxy account becomes the member of that group and not John. "
+msgstr ""
+
+#: src/Integrations/BuddyPress/Groups.php:121
+msgid "Groups are not enabled."
+msgstr ""
+
+#: src/Integrations/BuddyPress/Groups.php:50
+msgid ""
+"If you provide this, a link to this url is displayed in few places inside "
+"groups."
+msgstr ""
+
+#: src/Admin.php:191
+msgid "Integrations"
+msgstr ""
+
+#: src/Integrations/BuddyPress/GroupMembership.php:254
+msgid "Join Anonymously"
+msgstr ""
+
+#: src/Integrations/BuddyPress/GroupMembership.php:253
+msgid "Join group anonymously"
+msgstr ""
+
+#: src/Admin.php:310 src/Integrations/BuddyPress/GroupExtension.php:60
+#: src/Integrations/BuddyPress/Groups.php:113
+msgid "Know More"
+msgstr ""
+
+#: src/Integrations/BuddyPress/GroupMembership.php:264
+#: src/Integrations/BuddyPress/GroupMembership.php:427
+msgid "know more"
+msgstr ""
+
+#: src/Integrations/BuddyPress/GroupMembership.php:213
+msgid "Leave Group"
+msgstr ""
+
+#: src/Integrations/BuddyPress/Groups.php:40
+msgid "new page"
+msgstr ""
+
+#: src/Integrations/Integration.php:88
+msgid "No"
+msgstr ""
+
+#: src/Admin.php:356
+msgid "Not much it can do for now!"
+msgstr ""
+
+#: src/Admin.php:188
+msgid "Proxy User"
+msgstr ""
+
+#. Name of the plugin
+#: src/Admin.php:140
+msgid "RB Anonymous Members"
+msgstr ""
+
+#. %s: list of plugins rb-anonymous-members works with.
+#: src/Admin.php:355
+#, php-format
+msgid ""
+"RB Anonymous Members can only work when either of the following plugins are "
+"active: %s"
+msgstr ""
+
+#: src/Admin.php:453
+msgid "Settings"
+msgstr ""
+
+#: src/Admin.php:162
+msgid "Settings updated."
+msgstr ""
+
+#: src/Admin.php:306
+msgid ""
+"Then if John posts something in the group, internally it is posted from the "
+"proxy account and not from John's account."
+msgstr ""
+
+#: src/Integrations/BuddyPress/Groups.php:109
+msgid "This enables members to join groups anonymously."
+msgstr ""
+
+#: src/Admin.php:303
+msgid ""
+"This plugin works by making use of one real user account for all other "
+"anonymous users."
+msgstr ""
+
+#: src/Admin.php:336
+msgid ""
+"To keep a member's identity a secret, an alias is used instead of the "
+"member's actual name/username, wherever required. You can set a prefix for "
+"this alias, to make it more obvious to everyone that the name displayed in "
+"not the actual name."
+msgstr ""
+
+#: src/Integrations/BuddyPress/Groups.php:54
+msgid "Url information page"
+msgstr ""
+
+#: src/Admin.php:187
+msgid "User Profiles"
+msgstr ""
+
+#: src/Admin.php:302
+msgid "What is this?"
+msgstr ""
+
+#. alias/secret-name.
+#: src/Integrations/BuddyPress/Activities.php:193
+#, php-format
+msgid "What's new, %s?"
+msgstr ""
+
+#: src/Integrations/Integration.php:89
+msgid "Yes"
+msgstr ""
+
+#. 1: alias
+#: src/Integrations/BuddyPress/GroupMembership.php:417
+#, php-format
+msgid "You have joined this group anonymously as %s."
+msgstr ""
+
+#. 1: link to wp-admin > add new page.
+#: src/Integrations/BuddyPress/Groups.php:44
+#, php-format
+msgid ""
+"You should create a %s that has all the information about joining groups "
+"anonymously."
+msgstr ""

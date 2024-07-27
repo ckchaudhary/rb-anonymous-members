@@ -3,6 +3,7 @@
  * Base integration class.
  *
  * @package Anonymous Members
+ * @author ckchaudhary
  */
 
 namespace RecycleBin\AnonymousMembers\Integrations;
@@ -11,6 +12,7 @@ namespace RecycleBin\AnonymousMembers\Integrations;
  * Base integration class.
  *
  * @package Anonymous Members
+ * @author ckchaudhary
  */
 abstract class Integration {
 	/**

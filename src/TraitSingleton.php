@@ -3,6 +3,7 @@
  * Reusable singleton trait
  *
  * @package Anonymous Members
+ * @author ckchaudhary
  */
 
 namespace RecycleBin\AnonymousMembers;
@@ -17,7 +18,8 @@ if ( ! trait_exists( '\RecycleBin\AnonymousMembers\TraitSingleton' ) ) {
 	 *
 	 * /!\ The get_instance method have to be implemented !
 	 *
-	 * @package FrontPageBuddy
+	 * @package Anonymous Members
+	 * @author ckchaudhary
 	 */
 	trait TraitSingleton {
 

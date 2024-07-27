@@ -2,7 +2,8 @@
 /**
  * Admin class, to add settings screen, etc.
  *
- * @package FrontPage Buddy
+ * @package Anonymous Members
+ * @author ckchaudhary
  * @since 1.0.0
  */
 
@@ -351,7 +352,7 @@ class Admin {
 				<?php
 				printf(
 					/* translators: %s: list of plugins rb-anonymous-members works with. */
-					'<p>' . esc_html__( 'Anonymous buddy can only work when either of the following plugins are active: %s', 'rb-anonymous-members' ) . '.</p>'
+					'<p>' . esc_html__( 'RB Anonymous Members can only work when either of the following plugins are active: %s', 'rb-anonymous-members' ) . '.</p>'
 					. '<p>' . esc_html__( 'Not much it can do for now!', 'rb-anonymous-members' ) . '</p>',
 					'BuddyPress, BuddyBoss'
 				);

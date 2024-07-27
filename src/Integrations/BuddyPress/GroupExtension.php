@@ -2,7 +2,9 @@
 /**
  * Add settings screen in buddypress groups.
  *
- * @package FrontPage Buddy
+ * @package Anonymous Members
+ * @subpackage BuddyPress
+ * @author ckchaudhary
  * @since 1.0.0
  */
 
@@ -55,7 +57,7 @@ class GroupExtension extends \BP_Group_Extension {
 			$link = sprintf(
 				'<a href="%s" target="_blank" rel="noopener noreferrer"><span class="rb-am-icon gg-info"></span> %s</a>',
 				esc_url( $url ),
-				esc_html__( 'Know more', 'rb-anonymous-members' )
+				esc_html__( 'Know More', 'rb-anonymous-members' )
 			);
 
 			printf(

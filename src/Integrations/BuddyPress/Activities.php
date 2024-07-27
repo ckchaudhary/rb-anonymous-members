@@ -190,7 +190,7 @@ class Activities {
 
 		$strings['activity']['strings']['whatsnewPlaceholder'] = sprintf(
 			// translators: alias/secret-name.
-			__( "What's new, %s?", 'buddypress' ),
+			__( "What's new, %s?", 'rb-anonymous-members' ),
 			$alias['name'],
 		);
 
@@ -296,7 +296,7 @@ class Activities {
 		// Set the Activity update posted in a Group action.
 		$action = sprintf(
 			/* translators: 1: the user link. 2: the group link. */
-			esc_html__( '%1$s posted an update in the group %2$s', 'buddypress' ),
+			esc_html__( '%1$s posted an update in the group %2$s', 'rb-anonymous-members' ),
 			$user_link,
 			$group_link
 		);
