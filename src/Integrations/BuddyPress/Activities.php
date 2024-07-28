@@ -25,13 +25,6 @@ class Activities {
 	use \RecycleBin\AnonymousMembers\TraitSingleton;
 
 	/**
-	 * Undocumented variable
-	 *
-	 * @var boolean
-	 */
-	protected $dealing_with_contained_elmenets = false;
-
-	/**
 	 * Name of the meta key which is used to store id of the original(hidden) member associated with the activity.
 	 * In case the activity was registered anonumosly.
 	 *
@@ -64,7 +57,7 @@ class Activities {
 		// ----------------------------------------------------------------
 
 		// ---------- Commenting on activity posts in a group --------------
-		
+
 		// Allow anonymously joined members to comment on activities.
 		\add_filter( 'bp_activity_can_comment', array( $this, 'filter_activity_can_comment' ), 100 );
 		\add_filter( 'bp_activity_can_comment_reply', array( $this, 'filter_activity_can_comment_reply' ), 100, 2 );
@@ -148,7 +141,7 @@ class Activities {
 
 		// Is this activity from Stig?
 		$is_from_stig = false;
-		$stig = rb_anonymous_members()->get_anonymous_user();
+		$stig         = rb_anonymous_members()->get_anonymous_user();
 		if ( $stig && $stig->ID === $member_id ) {
 			$is_from_stig = true;
 		}
@@ -184,8 +177,8 @@ class Activities {
 
 		$alias = SecretIdentity::get_instance()->get( $user_id );
 
-		$strings['activity']['params']['avatar_url'] = $alias['avatar'];
-		$strings['activity']['params']['avatar_alt'] = '';
+		$strings['activity']['params']['avatar_url']  = $alias['avatar'];
+		$strings['activity']['params']['avatar_alt']  = '';
 		$strings['activity']['params']['user_domain'] = $alias['url'];
 
 		$strings['activity']['strings']['whatsnewPlaceholder'] = sprintf(
@@ -346,7 +339,7 @@ class Activities {
 			$component = $activity->component;
 			$group_id  = $activity->item_id;
 
-		// Use activity info from current activity item in the loop.
+			// Use activity info from current activity item in the loop.
 		} else {
 			$component = bp_get_activity_object_name();
 			$group_id  = bp_get_activity_item_id();

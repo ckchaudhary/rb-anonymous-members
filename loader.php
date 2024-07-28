@@ -17,8 +17,6 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) ? '' : exit();
 
-require __DIR__ . '/vendor/autoload.php';
-
 // Directory.
 if ( ! defined( 'RB_AM_P_DIR' ) ) {
 	define( 'RB_AM_P_DIR', trailingslashit( plugin_dir_path( __FILE__ ) ) );
@@ -40,16 +38,20 @@ if ( ! defined( 'RB_AM_P_VERSION' ) ) {
 	define( 'RB_AM_P_VERSION', '1.0.0' );
 }
 
-/**
- * Returns the main plugin object.
- *
- * @since 1.0.0
- *
- * @return \RecycleBin\AnonymousMembers\Plugin
- */
-function rb_anonymous_members() {
-	return \RecycleBin\AnonymousMembers\Plugin::get_instance();
-}
+if ( ! function_exists( '\rb_anonymous_members' ) ) {
+	require __DIR__ . '/vendor/autoload.php';
 
-// Instantiate the main plugin object.
-\add_action( 'plugins_loaded', 'rb_anonymous_members' );
+	/**
+	 * Returns the main plugin object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return \RecycleBin\AnonymousMembers\Plugin
+	 */
+	function rb_anonymous_members() {
+		return \RecycleBin\AnonymousMembers\Plugin::get_instance();
+	}
+
+	// Instantiate the main plugin object.
+	\add_action( 'plugins_loaded', 'rb_anonymous_members' );
+}

@@ -83,11 +83,11 @@ abstract class Integration {
 
 		return array(
 			'is_enabled' => array(
-				'type'         => 'switch',
-				'label'        => __( 'Enabled?', 'rb-anonymous-members' ),
-				'label_off'    => __( 'No', 'rb-anonymous-members' ),
-				'label_on'     => __( 'Yes', 'rb-anonymous-members' ),
-				'attributes'   => $attrs_enabled,
+				'type'       => 'switch',
+				'label'      => __( 'Enabled?', 'rb-anonymous-members' ),
+				'label_off'  => __( 'No', 'rb-anonymous-members' ),
+				'label_on'   => __( 'Yes', 'rb-anonymous-members' ),
+				'attributes' => $attrs_enabled,
 			),
 		);
 	}

@@ -88,7 +88,7 @@ final class Plugin {
 	public function get_anonymous_user() {
 		if ( empty( $this->anonymous_user ) ) {
 			$this->anonymous_user = 'empty';
-			$user_id = $this->option( 'anonymous_user_id' );
+			$user_id              = $this->option( 'anonymous_user_id' );
 			if ( $user_id ) {
 				$user = \get_user_by( 'id', $user_id );
 				if ( $user ) {

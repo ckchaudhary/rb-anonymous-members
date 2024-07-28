@@ -93,8 +93,8 @@ class GroupMembership {
 	 */
 	public function is_anonymous_member( $group_id, $user_id ) {
 		// Forcefully cast to int, otherwise in_array returns false in some cases.
-		$group_id = absint( $group_id );
-		$user_id  = absint( $user_id );
+		$group_id         = absint( $group_id );
+		$user_id          = absint( $user_id );
 		$anonymous_groups = \bp_get_user_meta( $user_id, $this->meta_key_anonymous_groups, true );
 		return ! empty( $anonymous_groups ) && in_array( $group_id, $anonymous_groups, true );
 	}
@@ -286,7 +286,8 @@ class GroupMembership {
 			return false;
 		}
 
-		if ( ! \wp_verify_nonce( \wp_unslash( $_GET['_wpnonce'] ), $this->query_param ) ) {
+		$nonce_val = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+		if ( ! \wp_verify_nonce( $nonce_val, $this->query_param ) ) {
 			return false;
 		}
 
@@ -308,10 +309,10 @@ class GroupMembership {
 	}
 
 	/**
-	 * Undocumented function
+	 * Make the give user an anonymous member of given group.
 	 *
-	 * @param int $group_id
-	 * @param int $org_user_id
+	 * @param int $group_id Id of the group.
+	 * @param int $org_user_id Id of the actual user.
 	 * @return void
 	 */
 	protected function join_anonymously( $group_id, $org_user_id ) {
@@ -359,7 +360,7 @@ class GroupMembership {
 	 */
 	public function after_join_group( $group_id, $user_id ) {
 		$anon_user = rb_anonymous_members()->get_anonymous_user();
-		if ( $anon_user ) {
+		if ( $anon_user && $anon_user->ID === $user_id ) {
 			// Delete activity which was just added.
 			if ( \bp_is_active( 'activity' ) ) {
 				\bp_activity_delete(
@@ -374,7 +375,7 @@ class GroupMembership {
 		}
 
 		// Don't update last activity.
-		// \remove_action( 'groups_join_group', '\groups_update_last_activity' );
+		/* \remove_action( 'groups_join_group', '\groups_update_last_activity' ); */
 	}
 
 	/**
