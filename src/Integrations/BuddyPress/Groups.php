@@ -86,6 +86,7 @@ class Groups extends \RecycleBin\AnonymousMembers\Integrations\Integration {
 		if ( \bp_is_active( 'groups' ) && 'yes' === $this->get_option( 'is_enabled' ) ) {
 			GroupMembership::get_instance();
 			Activities::get_instance();
+			Notifications::get_instance();
 		}
 	}
 

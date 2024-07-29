@@ -33,6 +33,15 @@ class Activities {
 	protected $meta_key_org_user_id = 'rb_am_activity_org_user_id';
 
 	/**
+	 * Get the name of meta key used to store the id of original user.
+	 *
+	 * @return string
+	 */
+	public function get_meta_key_org_user_id() {
+		return $this->meta_key_org_user_id;
+	}
+
+	/**
 	 * Initialize the object.
 	 *
 	 * @since 1.0.0
